@@ -1,0 +1,6 @@
+Which immediate item do you want next?
+A) Add the frontend Live Emotion Monitor (React component + small UI changes in Dashboard)
+B) Replace in-memory buffers with Redis-backed buffers (production-ready streaming)
+C) Harden keystroke auth (implement extra features + combine model outputs)
+D) Add a reset-session endpoint and a simple example frontend that demonstrates live smoothing
+E) Implement the policy fusion to act on smoothed emotion + keystroke scores
