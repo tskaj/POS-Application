@@ -20,7 +20,8 @@ class SubCategoryListPage extends StatefulWidget {
   State<SubCategoryListPage> createState() => _SubCategoryListPageState();
 }
 
-class _SubCategoryListPageState extends State<SubCategoryListPage> {
+class _SubCategoryListPageState extends State<SubCategoryListPage>
+    with RouteAware {
   List<SubCategory> subCategories = [];
   bool isLoading = false;
   bool isPaginationLoading = false;
@@ -40,6 +41,10 @@ class _SubCategoryListPageState extends State<SubCategoryListPage> {
 
   List<Category> categories = [];
 
+  // RouteObserver for navigation-based reloading
+  final RouteObserver<ModalRoute<void>> _routeObserver =
+      RouteObserver<ModalRoute<void>>();
+
   @override
   void initState() {
     super.initState();
@@ -49,10 +54,26 @@ class _SubCategoryListPageState extends State<SubCategoryListPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final ModalRoute? route = ModalRoute.of(context);
+    if (route != null) {
+      _routeObserver.subscribe(this, route);
+    }
+  }
+
+  @override
   void dispose() {
+    _routeObserver.unsubscribe(this);
     _searchDebounceTimer?.cancel();
     _searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Called when returning to this page from another page
+    _refreshSubCategoriesAfterChange();
   }
 
   Future<void> _fetchSubCategories({int page = 1}) async {
@@ -163,12 +184,12 @@ class _SubCategoryListPageState extends State<SubCategoryListPage> {
   // Force refresh sub categories from API (bypasses provider cache)
   Future<void> _refreshSubCategoriesAfterChange() async {
     print('🔄 Force refreshing sub categories from API after change');
-    try {
-      setState(() {
-        isLoading = true;
-        errorMessage = null;
-      });
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
 
+    try {
       // Fetch all sub categories from all pages (force fresh data)
       List<SubCategory> allSubCategories = [];
       int currentFetchPage = 1;
@@ -1193,26 +1214,6 @@ class _SubCategoryListPageState extends State<SubCategoryListPage> {
                         Icons.category,
                         Colors.blue,
                       ),
-                      const SizedBox(width: 12),
-                      _buildSummaryCard(
-                        'Active Sub Categories',
-                        subCategories
-                            .where((s) => s.status.toLowerCase() == 'active')
-                            .length
-                            .toString(),
-                        Icons.check_circle,
-                        Colors.green,
-                      ),
-                      const SizedBox(width: 12),
-                      _buildSummaryCard(
-                        'Inactive Sub Categories',
-                        subCategories
-                            .where((s) => s.status.toLowerCase() != 'active')
-                            .length
-                            .toString(),
-                        Icons.cancel,
-                        Colors.red,
-                      ),
                     ],
                   ),
                 ],
@@ -1649,7 +1650,7 @@ class _SubCategoryListPageState extends State<SubCategoryListPage> {
             ),
 
             // Pagination Controls
-            if (subCategories.isNotEmpty) ...[
+            if (subCategories.isNotEmpty && !isLoading) ...[
               Container(
                 margin: const EdgeInsets.fromLTRB(24, 12, 24, 16),
                 padding: const EdgeInsets.all(8),

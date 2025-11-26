@@ -19,7 +19,7 @@ class VendorsPage extends StatefulWidget {
   State<VendorsPage> createState() => _VendorsPageState();
 }
 
-class _VendorsPageState extends State<VendorsPage> {
+class _VendorsPageState extends State<VendorsPage> with RouteAware {
   vendor.VendorResponse? vendorResponse;
   List<vendor.Vendor> _filteredVendors = [];
   List<vendor.Vendor> _allFilteredVendors =
@@ -37,6 +37,10 @@ class _VendorsPageState extends State<VendorsPage> {
   // Search and filter controllers
   final TextEditingController _searchController = TextEditingController();
 
+  // RouteObserver for navigation-based reloading
+  final RouteObserver<ModalRoute<void>> _routeObserver =
+      RouteObserver<ModalRoute<void>>();
+
   @override
   void initState() {
     super.initState();
@@ -45,7 +49,20 @@ class _VendorsPageState extends State<VendorsPage> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
+  void didPopNext() {
+    // Called when the user navigates back to this page
+    _refreshVendorsAfterChange();
+  }
+
+  @override
   void dispose() {
+    _routeObserver.unsubscribe(this);
     _searchController.dispose();
     _searchDebounceTimer?.cancel(); // Cancel timer on dispose
     super.dispose();
@@ -121,6 +138,7 @@ class _VendorsPageState extends State<VendorsPage> {
     print('🔄 Force refreshing vendors from API after change');
     try {
       setState(() {
+        isLoading = true; // Show loading immediately
         errorMessage = null;
       });
 
@@ -1570,7 +1588,7 @@ class _VendorsPageState extends State<VendorsPage> {
                 ),
 
                 // Pagination Controls
-                if (_filteredVendors.isNotEmpty) ...[
+                if (_filteredVendors.isNotEmpty && !isLoading) ...[
                   Container(
                     margin: const EdgeInsets.fromLTRB(24, 12, 24, 16),
                     padding: const EdgeInsets.all(8),
