@@ -1289,34 +1289,33 @@ class _DashboardPageState extends State<DashboardPage>
           // Dashboard quick button with enhanced design
           Container(
             margin: const EdgeInsets.symmetric(vertical: 12),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                setState(() {
-                  currentContent = 'Admin Dashboard';
-                });
-                _loadDashboardData();
-              },
-              icon: const Icon(Icons.dashboard_rounded, size: 18),
-              label: const Text(
-                'Dashboard',
-                style: TextStyle(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF7C4DFF),
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
+            child: Tooltip(
+              message: 'Dashboard',
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF0D1845), Color(0xFF0A1238)],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                shadowColor: const Color(0xFF7C4DFF).withOpacity(0.3),
+                child: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      currentContent = 'Admin Dashboard';
+                    });
+                    _loadDashboardData();
+                  },
+                  icon: const Icon(Icons.dashboard_rounded, size: 18),
+                  style: IconButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.all(12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

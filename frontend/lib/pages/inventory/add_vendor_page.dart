@@ -270,30 +270,6 @@ class _AddVendorPageState extends State<AddVendorPage>
                                 ),
                           ),
                         ),
-                        // Add City Button
-                        Container(
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF28A745),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: IconButton(
-                            onPressed: () async {
-                              // Open add-city dialog on top. If a city is created,
-                              // return it to the caller of the search dialog so
-                              // the Add Vendor form can update immediately.
-                              final createdCity = await _showAddCityDialog();
-                              if (createdCity != null) {
-                                Navigator.of(context).pop(createdCity);
-                              }
-                            },
-                            icon: const Icon(
-                              Icons.add,
-                              color: Colors.white,
-                              size: 20,
-                            ),
-                            tooltip: 'Add New City',
-                          ),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 20),
@@ -521,114 +497,6 @@ class _AddVendorPageState extends State<AddVendorPage>
     }
   }
 
-  Future<cityModel.City?> _showAddCityDialog() async {
-    final TextEditingController cityController = TextEditingController();
-    final GlobalKey<FormState> cityFormKey = GlobalKey<FormState>();
-    bool isAdding = false;
-
-    final createdCity = await showDialog<cityModel.City?>(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              title: const Text('Add New City'),
-              content: Form(
-                key: cityFormKey,
-                child: TextFormField(
-                  controller: cityController,
-                  decoration: const InputDecoration(
-                    labelText: 'City Name',
-                    hintText: 'Enter city name',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Please enter city name';
-                    }
-                    return null;
-                  },
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: isAdding
-                      ? null
-                      : () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: isAdding
-                      ? null
-                      : () async {
-                          if (!cityFormKey.currentState!.validate()) return;
-
-                          setState(() => isAdding = true);
-
-                          try {
-                            // Create city with default state_id and status
-                            final response = await CityService.createCity(
-                              title: cityController.text.trim(),
-                              stateId: 1, // Default state ID
-                              status: 'active',
-                            );
-
-                            if (response.success) {
-                              // Reload cities to include the new one
-                              await _loadCities();
-
-                              // Return the newly created city to the caller so the
-                              // parent can update its UI immediately.
-                              if (context.mounted) {
-                                Navigator.of(context).pop(response.data);
-                              }
-                            } else {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Failed to create city'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              }
-                            }
-                          } catch (e) {
-                            print('Error creating city: $e');
-                            if (context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Failed to create city'),
-                                  backgroundColor: Colors.red,
-                                ),
-                              );
-                            }
-                          } finally {
-                            if (mounted) {
-                              setState(() => isAdding = false);
-                            }
-                          }
-                        },
-                  child: isAdding
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Text('Add City'),
-                ),
-              ],
-            );
-          },
-        );
-      },
-    );
-
-    // Return the created city (if any) to the caller so upstream callers
-    // (like the city search dialog or the Add Vendor form) can update
-    // their UI immediately.
-    return createdCity;
-  }
-
   // Helper method to create clean InputDecoration
   InputDecoration _buildCleanInputDecoration(
     String label, {
@@ -817,14 +685,16 @@ class _AddVendorPageState extends State<AddVendorPage>
                           controller: _lastNameController,
                           decoration: _buildCleanInputDecoration(
                             'Last Name',
-                            isRequired: false,
+                            isRequired: true,
                             prefixIcon: Icons.person,
                           ),
                           style: theme.textTheme.bodyLarge?.copyWith(
                             fontSize: 14,
                           ),
-                          // Last name is optional per requirements
                           validator: (value) {
+                            if (value == null || value.trim().isEmpty) {
+                              return 'Please enter last name';
+                            }
                             return null;
                           },
                         ),

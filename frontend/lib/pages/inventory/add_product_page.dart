@@ -639,7 +639,9 @@ class _AddProductPageState extends State<AddProductPage>
                           ),
                           child: OutlinedButton(
                             onPressed: _selectedCategoryId != null
-                                ? _showCategorySearchDialog
+                                ? () => _showCategorySearchDialog(
+                                    startWithCategories: false,
+                                  )
                                 : null,
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
@@ -4269,7 +4271,7 @@ class _AddProductPageState extends State<AddProductPage>
     );
   }
 
-  void _showCategorySearchDialog() async {
+  void _showCategorySearchDialog({bool startWithCategories = true}) async {
     // Fetch categories if not loaded yet
     if (categories.isEmpty) {
       await _fetchCategories();
@@ -4279,7 +4281,8 @@ class _AddProductPageState extends State<AddProductPage>
     List<Category> filteredCategories = List.from(categories);
     List<SubCategory> filteredSubCategories = List.from(subCategories);
     final TextEditingController searchController = TextEditingController();
-    bool showCategories = true; // Toggle between categories and subcategories
+    bool showCategories =
+        startWithCategories; // Toggle between categories and subcategories
     final parentContext = context; // outer context for add dialogs
 
     showDialog(

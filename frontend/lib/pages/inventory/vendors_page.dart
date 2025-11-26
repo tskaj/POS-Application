@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
+import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:excel/excel.dart' as excel_pkg;
@@ -1410,9 +1411,9 @@ class _VendorsPageState extends State<VendorsPage> {
                                 )
                               : ListView.builder(
                                   itemCount: _filteredVendors.length,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
                                   itemExtent: 32,
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
                                   itemBuilder: (context, index) {
                                     final vendor = _filteredVendors[index];
                                     return Container(
@@ -2162,6 +2163,10 @@ class _AddVendorDialogState extends State<AddVendorDialog> {
                                 vertical: 12,
                               ),
                             ),
+                            inputFormatters: [
+                              LengthLimitingTextInputFormatter(15),
+                              _CnicInputFormatter(),
+                            ],
                             onChanged: (value) {
                               if (_fieldErrors.containsKey('cnic')) {
                                 setState(() {
@@ -2430,6 +2435,50 @@ class _AddVendorDialogState extends State<AddVendorDialog> {
           ],
         ),
       ),
+    );
+  }
+}
+
+// Custom input formatter for CNIC format (xxxxx-xxxxxxx-x)
+class _CnicInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+
+    // Remove all non-digit characters
+    final digitsOnly = text.replaceAll(RegExp(r'[^0-9]'), '');
+
+    // Limit to 13 digits (5 + 7 + 1)
+    final limitedDigits = digitsOnly.length > 13
+        ? digitsOnly.substring(0, 13)
+        : digitsOnly;
+
+    // Format the digits
+    String formatted = '';
+    if (limitedDigits.length >= 1) {
+      formatted = limitedDigits.substring(
+        0,
+        limitedDigits.length > 5 ? 5 : limitedDigits.length,
+      );
+    }
+    if (limitedDigits.length >= 6) {
+      formatted +=
+          '-' +
+          limitedDigits.substring(
+            5,
+            limitedDigits.length > 12 ? 12 : limitedDigits.length,
+          );
+    }
+    if (limitedDigits.length >= 13) {
+      formatted += '-' + limitedDigits.substring(12, 13);
+    }
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }

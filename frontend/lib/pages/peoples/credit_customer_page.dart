@@ -4,6 +4,7 @@ import '../../services/credit_customer_service.dart';
 import '../../services/city_service.dart';
 import 'package:provider/provider.dart';
 import '../../providers/providers.dart';
+import '../../services/services.dart';
 
 // CNIC Formatter - Automatically adds dashes (XXXXX-XXXXXXX-X)
 class CnicInputFormatter extends TextInputFormatter {
@@ -1619,6 +1620,10 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
   bool _isLoading = false;
   bool _isEdit = false;
 
+  // Phone duplicate checking
+  bool _isCheckingDuplicatePhone = false;
+  String? _duplicatePhoneError;
+
   @override
   void initState() {
     super.initState();
@@ -1695,6 +1700,47 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
 
   // Local mutable copy of cities passed from parent
   late List<Map<String, dynamic>> _localCities;
+
+  // Check for duplicate phone number
+  Future<void> _checkDuplicatePhone(String phoneNumber) async {
+    if (phoneNumber.trim().isEmpty) {
+      if (_duplicatePhoneError != null) {
+        setState(() => _duplicatePhoneError = null);
+      }
+      return;
+    }
+
+    setState(() {
+      _isCheckingDuplicatePhone = true;
+      _duplicatePhoneError = null;
+    });
+
+    try {
+      // Pass excludeCustomerId when editing to avoid flagging current customer's phone as duplicate
+      final excludeId = _isEdit && widget.customer != null
+          ? widget.customer!['id'] as int
+          : null;
+      await ApiService.checkDuplicatePhone(
+        phoneNumber.trim(),
+        excludeCustomerId: excludeId,
+      );
+      if (mounted) {
+        setState(() {
+          _isCheckingDuplicatePhone = false;
+          _duplicatePhoneError = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isCheckingDuplicatePhone = false;
+          _duplicatePhoneError = 'This phone number is already in use';
+        });
+        // Trigger form validation to show the error
+        _formKey.currentState?.validate();
+      }
+    }
+  }
 
   // Show a searchable city selection dialog that matches the Add Vendor UI
   Future<void> _showCitySearchDialog() async {
@@ -2113,6 +2159,17 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
   }
 
   Future<void> _submitForm() async {
+    // Check for duplicate phone before submission
+    if (_duplicatePhoneError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fix the phone number validation error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) return;
 
     // Validate that security person CNIC is different from primary CNIC
@@ -2528,6 +2585,18 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
                                     keyboardType: TextInputType.phone,
                                     inputFormatters: [PhoneInputFormatter()],
                                     validator: FormValidators.validatePhone,
+                                    onChanged: (value) {
+                                      // Check for duplicate phone after a short delay
+                                      if (value.length >= 10) {
+                                        _checkDuplicatePhone(value);
+                                      } else if (_duplicatePhoneError != null) {
+                                        setState(
+                                          () => _duplicatePhoneError = null,
+                                        );
+                                      }
+                                    },
+                                    errorText: _duplicatePhoneError,
+                                    showLoading: _isCheckingDuplicatePhone,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
@@ -2804,6 +2873,9 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
     int maxLines = 1,
     String? Function(String?)? validator,
     List<TextInputFormatter>? inputFormatters,
+    Function(String)? onChanged,
+    String? errorText,
+    bool showLoading = false,
   }) {
     return TextFormField(
       controller: controller,
@@ -2811,10 +2883,21 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
       maxLines: maxLines,
       validator: validator,
       inputFormatters: inputFormatters,
+      onChanged: onChanged,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
         prefixIcon: Icon(icon, color: color),
+        suffixIcon: showLoading
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: Padding(
+                  padding: EdgeInsets.all(12),
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              )
+            : null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: color.withOpacity(0.3)),
@@ -2833,6 +2916,7 @@ class _CustomerFormDialogState extends State<CustomerFormDialog> {
           horizontal: 16,
           vertical: 16,
         ),
+        errorText: errorText,
       ),
     );
   }

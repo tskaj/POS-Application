@@ -263,11 +263,12 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
 
                 const SizedBox(height: 24),
 
-                // Action Buttons: Close | Preview Label | View Barcode | Print Barcode
+                // Action Buttons: Close | Preview Label | Print Barcode
                 Row(
                   children: [
                     // Close Button
                     Expanded(
+                      flex: 1,
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -294,6 +295,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     const SizedBox(width: 8),
                     // Preview Label Button (elegant gradient)
                     Expanded(
+                      flex: 2,
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
@@ -335,29 +337,9 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Expanded(
-                      child: ElevatedButton.icon(
-                        onPressed: _showBarcodeDialog,
-                        icon: const Icon(Icons.qr_code_scanner, size: 18),
-                        label: const Text('View Barcode'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: 16,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: 0,
-                          shadowColor: Colors.transparent,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
                     // Print Button (keeps existing behavior)
                     Expanded(
+                      flex: 1,
                       child: ElevatedButton.icon(
                         onPressed: () async {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -531,6 +513,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                   children: [
                     // Close Button
                     Expanded(
+                      flex: 1,
                       child: Container(
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -557,6 +540,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
                     const SizedBox(width: 8),
                     // Preview Label Button (elegant)
                     Expanded(
+                      flex: 2,
                       child: Container(
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
@@ -930,20 +914,6 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
             fontSize: 18,
           ),
         ),
-        actions: [
-          // View Barcode button
-          IconButton(
-            tooltip: 'View Barcode',
-            icon: Icon(Icons.qr_code_scanner, color: Color(0xFF0D1845)),
-            onPressed: _showBarcodeDialog,
-          ),
-          // View QR Code button
-          IconButton(
-            tooltip: 'View QR Code',
-            icon: Icon(Icons.qr_code, color: Color(0xFF0D1845)),
-            onPressed: _showQrCodeDialog,
-          ),
-        ],
         centerTitle: true,
       ),
       body: SingleChildScrollView(

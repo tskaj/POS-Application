@@ -5,6 +5,7 @@ import '../../services/inventory_service.dart';
 import '../../services/city_service.dart';
 import '../../models/vendor.dart' as vendor;
 import '../../models/city.dart' as cityModel;
+import '../../utils/utils.dart';
 
 class EditVendorPage extends StatefulWidget {
   final vendor.Vendor vendorData;
@@ -38,6 +39,10 @@ class _EditVendorPageState extends State<EditVendorPage> {
   int? _selectedCityId; // Changed to nullable
   bool _isLoading = false;
   Map<String, String> _fieldErrors = {}; // Store field-specific errors
+
+  // Phone duplicate checking
+  bool _isCheckingDuplicatePhone = false;
+  String? _duplicatePhoneError;
 
   // City data - now dynamic
   List<cityModel.City> _cities = [];
@@ -112,6 +117,51 @@ class _EditVendorPageState extends State<EditVendorPage> {
       if (mounted) {
         setState(() {
           _isLoadingCities = false;
+        });
+      }
+    }
+  }
+
+  // Check for duplicate phone number
+  Future<void> _checkDuplicatePhone(String phoneNumber) async {
+    if (phoneNumber.trim().isEmpty) {
+      if (_duplicatePhoneError != null) {
+        setState(() => _duplicatePhoneError = null);
+      }
+      return;
+    }
+
+    setState(() {
+      _isCheckingDuplicatePhone = true;
+      _duplicatePhoneError = null;
+    });
+
+    try {
+      final fullPhoneNumber = '+92$phoneNumber';
+      final result = await checkDuplicatePhoneNumber(
+        fullPhoneNumber,
+        excludeVendorId: widget.vendorData.id,
+      );
+
+      if (mounted) {
+        setState(() {
+          _isCheckingDuplicatePhone = false;
+          if (result['isDuplicate'] == true) {
+            _duplicatePhoneError =
+                'This phone number is already used by ${result['entityType']}: ${result['entityName']}';
+          } else {
+            _duplicatePhoneError = null;
+          }
+        });
+        // Trigger form validation to show the error
+        _formKey.currentState?.validate();
+      }
+    } catch (e) {
+      print('❌ Error checking duplicate phone: $e');
+      if (mounted) {
+        setState(() {
+          _isCheckingDuplicatePhone = false;
+          _duplicatePhoneError = null; // Allow submission on error
         });
       }
     }
@@ -550,6 +600,17 @@ class _EditVendorPageState extends State<EditVendorPage> {
       return;
     }
 
+    // Check for duplicate phone before submission
+    if (_duplicatePhoneError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fix the phone number validation error'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -913,6 +974,10 @@ class _EditVendorPageState extends State<EditVendorPage> {
                                         ),
                                         errorText: _fieldErrors['cnic'],
                                       ),
+                                      inputFormatters: [
+                                        LengthLimitingTextInputFormatter(15),
+                                        _CnicInputFormatter(),
+                                      ],
                                       onChanged: (value) {
                                         if (_fieldErrors.containsKey('cnic')) {
                                           setState(() {
@@ -1017,7 +1082,22 @@ class _EditVendorPageState extends State<EditVendorPage> {
                                           color: Colors.black87,
                                           fontWeight: FontWeight.w500,
                                         ),
-                                        errorText: _fieldErrors['phone'],
+                                        errorText:
+                                            _fieldErrors['phone'] ??
+                                            _duplicatePhoneError,
+                                        suffixIcon: _isCheckingDuplicatePhone
+                                            ? const SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: Padding(
+                                                  padding: EdgeInsets.all(12),
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                      ),
+                                                ),
+                                              )
+                                            : null,
                                       ),
                                       keyboardType: TextInputType.phone,
                                       inputFormatters: [
@@ -1030,10 +1110,22 @@ class _EditVendorPageState extends State<EditVendorPage> {
                                             _fieldErrors.remove('phone');
                                           });
                                         }
+                                        // Check for duplicate phone after a short delay
+                                        if (value.length == 10) {
+                                          _checkDuplicatePhone(value);
+                                        } else if (_duplicatePhoneError !=
+                                            null) {
+                                          setState(
+                                            () => _duplicatePhoneError = null,
+                                          );
+                                        }
                                       },
                                       validator: (value) {
                                         if (_fieldErrors.containsKey('phone')) {
                                           return _fieldErrors['phone'];
+                                        }
+                                        if (_duplicatePhoneError != null) {
+                                          return _duplicatePhoneError;
                                         }
                                         if (value != null &&
                                             value.trim().isNotEmpty) {
@@ -1240,5 +1332,49 @@ class _EditVendorPageState extends State<EditVendorPage> {
         ), // close main Column
       ), // close Dialog's Container
     ); // close Dialog
+  }
+}
+
+// Custom input formatter for CNIC format (xxxxx-xxxxxxx-x)
+class _CnicInputFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final text = newValue.text;
+
+    // Remove all non-digit characters
+    final digitsOnly = text.replaceAll(RegExp(r'[^0-9]'), '');
+
+    // Limit to 13 digits (5 + 7 + 1)
+    final limitedDigits = digitsOnly.length > 13
+        ? digitsOnly.substring(0, 13)
+        : digitsOnly;
+
+    // Format the digits
+    String formatted = '';
+    if (limitedDigits.length >= 1) {
+      formatted = limitedDigits.substring(
+        0,
+        limitedDigits.length > 5 ? 5 : limitedDigits.length,
+      );
+    }
+    if (limitedDigits.length >= 6) {
+      formatted +=
+          '-' +
+          limitedDigits.substring(
+            5,
+            limitedDigits.length > 12 ? 12 : limitedDigits.length,
+          );
+    }
+    if (limitedDigits.length >= 13) {
+      formatted += '-' + limitedDigits.substring(12, 13);
+    }
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
   }
 }

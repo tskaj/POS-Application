@@ -40,6 +40,8 @@ class _PosPageState extends State<PosPage>
   String selectedCategoryId = 'all'; // Selected category from bottom section
   String selectedSubCategoryId =
       'all'; // Selected subcategory from left sidebar
+  String selectedStockFilter =
+      'all'; // Stock filter: 'all', 'in_stock', 'out_of_stock'
   String searchQuery = '';
   List<Map<String, Object>> orderItems = [];
   Map<String, dynamic>? selectedCustomer;
@@ -174,6 +176,10 @@ class _PosPageState extends State<PosPage>
         currentDiscount = 0.0;
         currentRoundOff = 0.0;
         orderDescription = '';
+        selectedCategoryId = 'all';
+        selectedSubCategoryId = 'all';
+        selectedStockFilter = 'all';
+        searchQuery = '';
         _isInitializing = true;
       });
       // Reinitialize data for fresh POS session
@@ -220,6 +226,10 @@ class _PosPageState extends State<PosPage>
           currentDiscount = 0.0;
           currentRoundOff = 0.0;
           orderDescription = '';
+          selectedCategoryId = 'all';
+          selectedSubCategoryId = 'all';
+          selectedStockFilter = 'all';
+          searchQuery = '';
         });
       }
 
@@ -568,6 +578,7 @@ class _PosPageState extends State<PosPage>
       selectedCategoryId = category;
       selectedSubCategoryId =
           'all'; // Reset subcategory selection when category changes
+      selectedStockFilter = 'all'; // Reset stock filter when category changes
     });
 
     _resetAndFilterProducts();
@@ -576,6 +587,8 @@ class _PosPageState extends State<PosPage>
   void onSubCategorySelected(String subCategory) {
     setState(() {
       selectedSubCategoryId = subCategory;
+      selectedStockFilter =
+          'all'; // Reset stock filter when subcategory changes
     });
     _resetAndFilterProducts();
   }
@@ -1432,6 +1445,70 @@ class _PosPageState extends State<PosPage>
                                       ),
                                     ),
                                     const SizedBox(width: 10),
+                                    // Stock Filter Buttons
+                                    Container(
+                                      height: 40,
+                                      padding: const EdgeInsets.all(3),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[50],
+                                        border: Border.all(
+                                          color: Colors.grey[200]!,
+                                          width: 1.5,
+                                        ),
+                                        borderRadius: BorderRadius.circular(10),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(
+                                              0.04,
+                                            ),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            margin: const EdgeInsets.symmetric(
+                                              horizontal: 4,
+                                            ),
+                                            child: _buildStockFilterButton(
+                                              'All',
+                                              'all',
+                                            ),
+                                          ),
+                                          Container(
+                                            width: 1,
+                                            height: 28,
+                                            color: Colors.grey[300],
+                                          ),
+                                          Container(
+                                            margin: const EdgeInsets.symmetric(
+                                              horizontal: 4,
+                                            ),
+                                            child: _buildStockFilterButton(
+                                              'In Stock',
+                                              'in_stock',
+                                            ),
+                                          ),
+                                          Container(
+                                            width: 1,
+                                            height: 28,
+                                            color: Colors.grey[300],
+                                          ),
+                                          Container(
+                                            margin: const EdgeInsets.symmetric(
+                                              horizontal: 4,
+                                            ),
+                                            child: _buildStockFilterButton(
+                                              'Out of Stock',
+                                              'out_of_stock',
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
                                     // Scanner focus indicator (compact)
                                     Tooltip(
                                       message: _keyboardFocusNode.hasFocus
@@ -1579,7 +1656,7 @@ class _PosPageState extends State<PosPage>
                             bottom: true,
                             child: Container(
                               height:
-                                  85, // Increased slightly to prevent 2px overflow
+                                  80, // Increased from 60 to 80 for more space
                               decoration: BoxDecoration(
                                 color: Colors.white,
                                 border: Border(
@@ -1816,7 +1893,7 @@ class _PosPageState extends State<PosPage>
 
     return Container(
       constraints: const BoxConstraints(
-        maxHeight: 42, // Increased to match container height
+        maxHeight: 60, // Increased from 48 to 60 for more space
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -1994,6 +2071,39 @@ class _PosPageState extends State<PosPage>
     );
   }
 
+  Widget _buildStockFilterButton(String label, String filterValue) {
+    final isSelected = selectedStockFilter == filterValue;
+    return TextButton(
+      onPressed: () {
+        setState(() {
+          selectedStockFilter = filterValue;
+        });
+        _resetAndFilterProducts();
+        // Ensure keyboard focus returns to the POS scanner listener
+        try {
+          _keyboardFocusNode.requestFocus();
+        } catch (_) {}
+      },
+      style: TextButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        minimumSize: Size.zero,
+        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        backgroundColor: isSelected
+            ? const Color(0xFF0D1845)
+            : Colors.transparent,
+        foregroundColor: isSelected ? Colors.white : Colors.grey[700],
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+        ),
+      ),
+    );
+  }
+
   Widget _buildCategoryItemForBottom(
     String categoryId,
     String title,
@@ -2001,11 +2111,11 @@ class _PosPageState extends State<PosPage>
     bool isSelected,
   ) {
     return Container(
-      width: 75, // Increased width for bigger buttons
-      margin: const EdgeInsets.only(right: 4, left: 1), // Slightly more margin
+      width: 120, // Increased width to accommodate row layout
+      margin: const EdgeInsets.only(right: 8, left: 4),
       child: Material(
-        elevation: isSelected ? 3 : 1, // Slightly more elevation
-        borderRadius: BorderRadius.circular(12), // Slightly bigger radius
+        elevation: isSelected ? 3 : 1,
+        borderRadius: BorderRadius.circular(12),
         shadowColor: isSelected
             ? const Color(0xFF0D1845).withOpacity(0.25)
             : Colors.black.withOpacity(0.08),
@@ -2016,9 +2126,9 @@ class _PosPageState extends State<PosPage>
           highlightColor: const Color(0xFF0D1845).withOpacity(0.05),
           child: Container(
             padding: const EdgeInsets.symmetric(
-              vertical: 6,
-              horizontal: 4,
-            ), // More padding
+              vertical: 10,
+              horizontal: 10,
+            ), // Increased padding for more height
             decoration: BoxDecoration(
               color: isSelected ? const Color(0xFF0D1845) : Colors.white,
               borderRadius: BorderRadius.circular(12),
@@ -2043,16 +2153,16 @@ class _PosPageState extends State<PosPage>
                       end: Alignment.bottomCenter,
                     ),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(4), // More padding for icon
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: isSelected
                         ? Colors.white.withOpacity(0.2)
                         : Colors.grey[100]!.withOpacity(0.8),
-                    borderRadius: BorderRadius.circular(8), // Bigger radius
+                    borderRadius: BorderRadius.circular(8),
                     border: Border.all(
                       color: isSelected
                           ? Colors.white.withOpacity(0.3)
@@ -2062,23 +2172,45 @@ class _PosPageState extends State<PosPage>
                   ),
                   child: Icon(
                     icon,
-                    size: 12, // Bigger icon
+                    size: 14,
                     color: isSelected ? Colors.white : Colors.grey[700],
                   ),
                 ),
-                const SizedBox(height: 2), // Slightly more spacing
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.grey[800],
-                    fontSize: 9, // Bigger font
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                    letterSpacing: 0.3,
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.grey[800],
+                      fontSize: 11,
+                      fontWeight: isSelected
+                          ? FontWeight.w700
+                          : FontWeight.w600,
+                      letterSpacing: 0.3,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                 ),
+                if (isSelected)
+                  Container(
+                    margin: const EdgeInsets.only(left: 4),
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.25),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.4),
+                        width: 1,
+                      ),
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      size: 12,
+                      color: Colors.white,
+                    ),
+                  ),
               ],
             ),
           ),
@@ -2109,7 +2241,8 @@ class _PosPageState extends State<PosPage>
 
         // Compute bottom padding dynamically
         final bottomInset = MediaQuery.of(context).viewPadding.bottom;
-        final categoriesBarHeight = 85.0;
+        final categoriesBarHeight =
+            100.0; // Updated to match new container height
         final bottomPadding = categoriesBarHeight + bottomInset + 12.0;
 
         return GridView.builder(
@@ -2144,7 +2277,7 @@ class _PosPageState extends State<PosPage>
   Widget _buildProductsTable() {
     // Compute bottom padding dynamically
     final bottomInset = MediaQuery.of(context).viewPadding.bottom;
-    final categoriesBarHeight = 85.0;
+    final categoriesBarHeight = 100.0; // Updated to match new container height
     final bottomPadding = categoriesBarHeight + bottomInset + 12.0;
 
     return SingleChildScrollView(
@@ -2584,6 +2717,7 @@ class _PosPageState extends State<PosPage>
     // Use efficient filtering with early returns and optimized logic
     if (selectedSubCategoryId == 'all' &&
         selectedCategoryId == 'all' &&
+        selectedStockFilter == 'all' &&
         searchQuery.isEmpty) {
       return products;
     }
@@ -2597,7 +2731,22 @@ class _PosPageState extends State<PosPage>
 
     return products
         .where((product) {
-          // Subcategory filter - check first as it's more specific
+          // Stock filter - check first for performance
+          if (selectedStockFilter != 'all') {
+            final stockQuantity =
+                int.tryParse(product.inStockQuantity) ??
+                int.tryParse(product.openingStockQuantity) ??
+                0;
+            final isInStock = stockQuantity > 0;
+
+            if (selectedStockFilter == 'in_stock' && !isInStock) {
+              return false;
+            } else if (selectedStockFilter == 'out_of_stock' && isInStock) {
+              return false;
+            }
+          }
+
+          // Subcategory filter - check next as it's more specific
           if (selectedSubCategoryId != 'all' &&
               product.subCategoryId != selectedSubCategoryId) {
             return false;

@@ -45,8 +45,9 @@ class _InvoicesPageState extends State<InvoicesPage> {
   final int itemsPerPage = 19;
 
   // Filter states
-  String _selectedTimeFilter = 'All'; // Day, Month, Year, All
-  String _selectedPaymentFilter = 'All'; // All, Paid, Unpaid, Partial
+  DateTime?
+  _selectedDate; // Specific date filter (replaces time period dropdown)
+  String _selectedPaymentFilter = 'All'; // All, Cash, Credit, Bank
   final TextEditingController _searchController = TextEditingController();
   DateTime? _fromDate;
   DateTime? _toDate;
@@ -347,7 +348,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
   void _applyFiltersClientSide() {
     try {
       print(
-        '🎯 Client-side filtering - time filter: "$_selectedTimeFilter", payment filter: "$_selectedPaymentFilter"',
+        '🎯 Client-side filtering - date filter: "${_selectedDate != null ? DateFormat('yyyy-MM-dd').format(_selectedDate!) : 'All'}", payment filter: "$_selectedPaymentFilter"',
       );
 
       // Apply filters to cached invoices (no API calls)
@@ -487,33 +488,19 @@ class _InvoicesPageState extends State<InvoicesPage> {
                 dateMatch = false;
               }
             }
-          } else {
-            final now = DateTime.now();
-            if (_selectedTimeFilter == 'Day') {
-              dateMatch =
-                  invoiceDate.year == now.year &&
-                  invoiceDate.month == now.month &&
-                  invoiceDate.day == now.day;
-            } else if (_selectedTimeFilter == 'Month') {
-              dateMatch =
-                  invoiceDate.year == now.year &&
-                  invoiceDate.month == now.month;
-            } else if (_selectedTimeFilter == 'Year') {
-              dateMatch = invoiceDate.year == now.year;
-            }
+          } else if (_selectedDate != null) {
+            dateMatch =
+                invoiceDate.year == _selectedDate!.year &&
+                invoiceDate.month == _selectedDate!.month &&
+                invoiceDate.day == _selectedDate!.day;
           }
+          // No fallback time filter - show all dates when no specific filters are applied
 
           bool paymentMatch = true;
           if (_selectedPaymentFilter != 'All') {
-            if (_selectedPaymentFilter == 'Paid') {
-              paymentMatch = invoice.paidAmount >= invoice.invAmount;
-            } else if (_selectedPaymentFilter == 'Unpaid') {
-              paymentMatch = invoice.paidAmount == 0;
-            } else if (_selectedPaymentFilter == 'Partial') {
-              paymentMatch =
-                  invoice.paidAmount > 0 &&
-                  invoice.paidAmount < invoice.invAmount;
-            }
+            paymentMatch =
+                (invoice.paymentMode.toLowerCase() ==
+                _selectedPaymentFilter.toLowerCase());
           }
 
           return searchMatch && dateMatch && paymentMatch;
@@ -608,33 +595,19 @@ class _InvoicesPageState extends State<InvoicesPage> {
                 dateMatch = false;
               }
             }
-          } else {
-            final now = DateTime.now();
-            if (_selectedTimeFilter == 'Day') {
-              dateMatch =
-                  invoiceDate.year == now.year &&
-                  invoiceDate.month == now.month &&
-                  invoiceDate.day == now.day;
-            } else if (_selectedTimeFilter == 'Month') {
-              dateMatch =
-                  invoiceDate.year == now.year &&
-                  invoiceDate.month == now.month;
-            } else if (_selectedTimeFilter == 'Year') {
-              dateMatch = invoiceDate.year == now.year;
-            }
+          } else if (_selectedDate != null) {
+            dateMatch =
+                invoiceDate.year == _selectedDate!.year &&
+                invoiceDate.month == _selectedDate!.month &&
+                invoiceDate.day == _selectedDate!.day;
           }
+          // No fallback time filter - show all dates when no specific filters are applied
 
           bool paymentMatch = true;
           if (_selectedPaymentFilter != 'All') {
-            if (_selectedPaymentFilter == 'Paid') {
-              paymentMatch = invoice.paidAmount >= invoice.invAmount;
-            } else if (_selectedPaymentFilter == 'Unpaid') {
-              paymentMatch = invoice.paidAmount == 0;
-            } else if (_selectedPaymentFilter == 'Partial') {
-              paymentMatch =
-                  invoice.paidAmount > 0 &&
-                  invoice.paidAmount < invoice.invAmount;
-            }
+            paymentMatch =
+                (invoice.paymentMode.toLowerCase() ==
+                _selectedPaymentFilter.toLowerCase());
           }
 
           return searchMatch && dateMatch && paymentMatch;
@@ -755,37 +728,20 @@ class _InvoicesPageState extends State<InvoicesPage> {
                 dateMatch = false;
               }
             }
-          } else {
-            final now = DateTime.now();
-            if (_selectedTimeFilter == 'Day') {
-              dateMatch =
-                  invoiceDate.year == now.year &&
-                  invoiceDate.month == now.month &&
-                  invoiceDate.day == now.day;
-            } else if (_selectedTimeFilter == 'Month') {
-              dateMatch =
-                  invoiceDate.year == now.year &&
-                  invoiceDate.month == now.month;
-            } else if (_selectedTimeFilter == 'Year') {
-              dateMatch = invoiceDate.year == now.year;
-            }
+          } else if (_selectedDate != null) {
+            dateMatch =
+                invoiceDate.year == _selectedDate!.year &&
+                invoiceDate.month == _selectedDate!.month &&
+                invoiceDate.day == _selectedDate!.day;
           }
+          // No fallback time filter - show all dates when no specific filters are applied
 
           // Payment status filtering based on paid amount
           bool paymentMatch = true;
           if (_selectedPaymentFilter != 'All') {
-            if (_selectedPaymentFilter == 'Paid') {
-              // Fully paid: paidAmount >= invAmount
-              paymentMatch = invoice.paidAmount >= invoice.invAmount;
-            } else if (_selectedPaymentFilter == 'Unpaid') {
-              // Not paid at all: paidAmount == 0
-              paymentMatch = invoice.paidAmount == 0;
-            } else if (_selectedPaymentFilter == 'Partial') {
-              // Partially paid: 0 < paidAmount < invAmount
-              paymentMatch =
-                  invoice.paidAmount > 0 &&
-                  invoice.paidAmount < invoice.invAmount;
-            }
+            paymentMatch =
+                (invoice.paymentMode.toLowerCase() ==
+                _selectedPaymentFilter.toLowerCase());
           }
 
           return searchMatch && dateMatch && paymentMatch;
@@ -2271,7 +2227,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                       ),
                       child: Row(
                         children: [
-                          // Time Filter
+                          // Specific Date Filter
                           Expanded(
                             flex: 2,
                             child: Column(
@@ -2286,7 +2242,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                     ),
                                     SizedBox(width: 6),
                                     Text(
-                                      'Time Period',
+                                      'Specific Date',
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
@@ -2296,10 +2252,30 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                   ],
                                 ),
                                 SizedBox(height: 6),
-                                Container(
-                                  height: 36,
-                                  child: DropdownButtonFormField<String>(
-                                    value: _selectedTimeFilter,
+                                InkWell(
+                                  onTap: () async {
+                                    final picked = await showDatePicker(
+                                      context: context,
+                                      initialDate:
+                                          _selectedDate ?? DateTime.now(),
+                                      firstDate: DateTime(2000),
+                                      lastDate: DateTime(2100),
+                                    );
+                                    if (picked != null && mounted) {
+                                      setState(() {
+                                        _selectedDate = picked;
+                                        if (_activeTabIndex == 0) {
+                                          currentPageAll = 1;
+                                        } else if (_activeTabIndex == 1) {
+                                          currentPage = 1;
+                                        } else {
+                                          currentPageCustom = 1;
+                                        }
+                                      });
+                                      _applyFiltersForActiveTab();
+                                    }
+                                  },
+                                  child: InputDecorator(
                                     decoration: InputDecoration(
                                       filled: true,
                                       fillColor: Colors.white,
@@ -2327,32 +2303,47 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                         ),
                                       ),
                                     ),
-                                    items: ['All', 'Day', 'Month', 'Year']
-                                        .map(
-                                          (filter) => DropdownMenuItem(
-                                            value: filter,
-                                            child: Text(
-                                              filter,
-                                              style: TextStyle(fontSize: 13),
-                                            ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            _selectedDate != null
+                                                ? DateFormat(
+                                                    'dd MMM yyyy',
+                                                  ).format(_selectedDate!)
+                                                : 'Select Date',
+                                            style: TextStyle(fontSize: 13),
                                           ),
-                                        )
-                                        .toList(),
-                                    onChanged: (value) {
-                                      if (value != null && mounted) {
-                                        setState(() {
-                                          _selectedTimeFilter = value;
-                                          if (_activeTabIndex == 0) {
-                                            currentPageAll = 1;
-                                          } else if (_activeTabIndex == 1) {
-                                            currentPage = 1;
-                                          } else {
-                                            currentPageCustom = 1;
-                                          }
-                                        });
-                                        _applyFiltersForActiveTab();
-                                      }
-                                    },
+                                        ),
+                                        if (_selectedDate != null)
+                                          IconButton(
+                                            onPressed: () {
+                                              if (mounted) {
+                                                setState(() {
+                                                  _selectedDate = null;
+                                                  if (_activeTabIndex == 0) {
+                                                    currentPageAll = 1;
+                                                  } else if (_activeTabIndex ==
+                                                      1) {
+                                                    currentPage = 1;
+                                                  } else {
+                                                    currentPageCustom = 1;
+                                                  }
+                                                });
+                                                _applyFiltersForActiveTab();
+                                              }
+                                            },
+                                            icon: Icon(
+                                              Icons.clear,
+                                              size: 16,
+                                              color: Color(0xFF6C757D),
+                                            ),
+                                            tooltip: 'Clear date',
+                                            padding: EdgeInsets.zero,
+                                            constraints: BoxConstraints(),
+                                          ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],
@@ -2374,7 +2365,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                     ),
                                     SizedBox(width: 6),
                                     Text(
-                                      'Payment Status',
+                                      'Payment Mode',
                                       style: TextStyle(
                                         fontSize: 12,
                                         fontWeight: FontWeight.w600,
@@ -2415,7 +2406,7 @@ class _InvoicesPageState extends State<InvoicesPage> {
                                         ),
                                       ),
                                     ),
-                                    items: ['All', 'Paid', 'Unpaid', 'Partial']
+                                    items: ['All', 'Cash', 'Credit', 'Bank']
                                         .map(
                                           (filter) => DropdownMenuItem(
                                             value: filter,

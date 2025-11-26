@@ -1470,8 +1470,6 @@ class _SubCategoryListPageState extends State<SubCategoryListPage> {
                             )
                           : ListView.builder(
                               itemCount: subCategories.length,
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
                               itemExtent: 32,
                               itemBuilder: (context, index) {
                                 final subCategory = subCategories[index];

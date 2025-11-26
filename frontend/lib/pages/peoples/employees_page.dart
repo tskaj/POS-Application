@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import '../../services/employees_service.dart';
 import '../../services/city_service.dart';
 import '../../models/city.dart' as cityModel;
+import '../../services/services.dart';
 
 class EmployeesPage extends StatefulWidget {
   const EmployeesPage({super.key});
@@ -812,13 +813,6 @@ class _EmployeesPageState extends State<EmployeesPage> {
                               itemBuilder: (context, index) {
                                 final employee =
                                     _getPaginatedEmployees()[index];
-                                final initials = employee.name
-                                    .split(' ')
-                                    .take(2)
-                                    .map((n) => n.isNotEmpty ? n[0] : '')
-                                    .join()
-                                    .toUpperCase();
-
                                 return Container(
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
@@ -839,51 +833,27 @@ class _EmployeesPageState extends State<EmployeesPage> {
                                     children: [
                                       Expanded(
                                         flex: 2,
-                                        child: Row(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            CircleAvatar(
-                                              radius: 16,
-                                              backgroundColor: Color(
-                                                0xFF0D1845,
+                                            Text(
+                                              employee.name,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w600,
+                                                color: Color(0xFF2C3E50),
                                               ),
-                                              foregroundColor: Colors.white,
-                                              child: Text(
-                                                initials,
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    employee.name,
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                      color: Color(0xFF2C3E50),
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                  SizedBox(height: 2),
-                                                  Text(
-                                                    employee.email,
-                                                    style: TextStyle(
-                                                      fontSize: 10,
-                                                      color: Colors.grey[600],
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                  ),
-                                                ],
+                                            SizedBox(height: 2),
+                                            Text(
+                                              employee.email,
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.grey[600],
                                               ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ],
                                         ),
@@ -1154,6 +1124,10 @@ class _EmployeeFormDialogState extends State<_EmployeeFormDialog> {
   int _selectedRoleId = 4; // Default to Cashier
   bool _isLoading = false;
 
+  // Duplicate phone checking
+  bool _isCheckingDuplicatePhone = false;
+  String? _duplicatePhoneError;
+
   // Role definitions
   final List<Map<String, dynamic>> _roles = [
     {'id': 1, 'name': 'Super Admin'},
@@ -1405,6 +1379,45 @@ class _EmployeeFormDialogState extends State<_EmployeeFormDialog> {
     }
   }
 
+  Future<void> _checkDuplicatePhone(String phoneNumber) async {
+    if (phoneNumber.trim().isEmpty) {
+      setState(() {
+        _duplicatePhoneError = null;
+        _isCheckingDuplicatePhone = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _isCheckingDuplicatePhone = true;
+      _duplicatePhoneError = null;
+    });
+
+    try {
+      // Pass excludeEmployeeId when editing to avoid flagging current employee's phone as duplicate
+      final excludeId = widget.isEdit && widget.employee != null
+          ? widget.employee!.id
+          : null;
+      await ApiService.checkDuplicatePhone(
+        phoneNumber.trim(),
+        excludeEmployeeId: excludeId,
+      );
+      if (mounted) {
+        setState(() {
+          _duplicatePhoneError = null;
+          _isCheckingDuplicatePhone = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isCheckingDuplicatePhone = false;
+          _duplicatePhoneError = 'This phone number is already in use';
+        });
+      }
+    }
+  }
+
   Future<cityModel.City?> _showCitySelectionDialog() async {
     return await showDialog<cityModel.City>(
       context: context,
@@ -1416,6 +1429,27 @@ class _EmployeeFormDialogState extends State<_EmployeeFormDialog> {
 
   Future<void> _submitForm() async {
     if (!_formKey.currentState!.validate()) return;
+
+    // Check for duplicate phone error
+    if (_duplicatePhoneError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.white),
+              SizedBox(width: 12),
+              Text('Please resolve the duplicate phone number error'),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+      return;
+    }
 
     if (_selectedCity == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1734,7 +1768,7 @@ class _EmployeeFormDialogState extends State<_EmployeeFormDialog> {
                                 return null;
                               },
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 20),
                             TextFormField(
                               controller: _cnicController,
                               decoration: _buildInputDecoration(
@@ -1826,9 +1860,23 @@ class _EmployeeFormDialogState extends State<_EmployeeFormDialog> {
                                             color: Colors.black,
                                             fontWeight: FontWeight.w500,
                                           ),
+                                          errorText: _duplicatePhoneError,
+                                          suffixIcon: _isCheckingDuplicatePhone
+                                              ? SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child:
+                                                      CircularProgressIndicator(
+                                                        strokeWidth: 2,
+                                                      ),
+                                                )
+                                              : null,
                                         ),
                                     keyboardType: TextInputType.number,
                                     maxLength: 10,
+                                    onChanged: (value) {
+                                      _checkDuplicatePhone('+92$value');
+                                    },
                                     validator: (value) {
                                       if (value == null ||
                                           value.trim().isEmpty) {

@@ -5,6 +5,7 @@ import '../../services/bank_services.dart';
 import '../../services/credit_customer_service.dart';
 import 'package:provider/provider.dart';
 import '../../providers/providers.dart';
+import 'package:flutter/services.dart';
 
 class SalesReturnPage extends StatefulWidget {
   const SalesReturnPage({super.key});
@@ -185,6 +186,29 @@ class _SalesReturnPageState extends State<SalesReturnPage> with RouteAware {
       final invoiceResponse = await SalesService.getInvoiceByNumber(
         invoiceNumber,
       );
+
+      // Fetch existing returns for this invoice to calculate remaining quantities
+      Map<int, int> returnedQuantities = {};
+      try {
+        final allReturnsResponse = await SalesService.getSalesReturns();
+        final invoiceReturns = allReturnsResponse.data
+            .where((r) => r.posId == invoiceResponse.posId.toString())
+            .toList();
+
+        // Calculate returned quantities per product
+        for (var ret in invoiceReturns) {
+          for (var detail in ret.details) {
+            int prodId = int.tryParse(detail.productId) ?? 0;
+            int qtyReturned = int.tryParse(detail.qty) ?? 0;
+            returnedQuantities[prodId] =
+                (returnedQuantities[prodId] ?? 0) + qtyReturned;
+          }
+        }
+      } catch (e) {
+        // If fetching returns fails, keep remaining as original
+        print('Failed to fetch existing returns: $e');
+      }
+
       setState(() {
         _invoiceCustomerId = _selectedCustomerType == 'Walkin Customer'
             ? 1
@@ -235,8 +259,23 @@ class _SalesReturnPageState extends State<SalesReturnPage> with RouteAware {
             'returnQuantityController': TextEditingController(
               text: qty.toString(),
             ),
+            'remainingQuantity': qty, // initially same as original
           };
         }).toList();
+
+        // Update remaining quantities
+        for (var product in _invoiceProducts) {
+          int prodId = int.tryParse(product['productId'].toString()) ?? 0;
+          int originalQty = product['quantity'] as int;
+          int alreadyReturned = returnedQuantities[prodId] ?? 0;
+          int remaining = originalQty - alreadyReturned;
+          product['remainingQuantity'] = remaining > 0 ? remaining : 0;
+
+          // Set initial return quantity to remaining
+          product['returnQuantityController'].text =
+              product['remainingQuantity'].toString();
+        }
+
         _isLoadingInvoice = false;
       });
     } catch (e) {
@@ -310,9 +349,9 @@ class _SalesReturnPageState extends State<SalesReturnPage> with RouteAware {
         final priceController =
             product['returnPriceController'] as TextEditingController?;
 
-        final int originalQty = (product['quantity'] is int)
-            ? product['quantity'] as int
-            : int.tryParse(product['quantity']?.toString() ?? '') ?? 1;
+        final int originalQty = (product['remainingQuantity'] is int)
+            ? product['remainingQuantity'] as int
+            : int.tryParse(product['remainingQuantity']?.toString() ?? '') ?? 1;
         final double originalPrice = (product['price'] is double)
             ? product['price'] as double
             : double.tryParse(product['price']?.toString() ?? '') ?? 0.0;
@@ -2568,6 +2607,22 @@ class _SalesReturnPageState extends State<SalesReturnPage> with RouteAware {
                                                 color: Colors.grey,
                                               ),
                                             ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              'CNIC: ${_selectedCreditCustomer?['cnic'] ?? 'N/A'}',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              'Phone: ${_selectedCreditCustomer?['phone'] ?? 'N/A'}',
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -2790,7 +2845,7 @@ class _SalesReturnPageState extends State<SalesReturnPage> with RouteAware {
                                   ),
                                   child: SingleChildScrollView(
                                     child: DataTable(
-                                      columnSpacing: 8,
+                                      columnSpacing: 16,
                                       headingRowHeight: 28,
                                       dataRowHeight: 48,
                                       columns: const [
@@ -2825,6 +2880,10 @@ class _SalesReturnPageState extends State<SalesReturnPage> with RouteAware {
                                                         keyboardType:
                                                             TextInputType
                                                                 .number,
+                                                        inputFormatters: [
+                                                          FilteringTextInputFormatter
+                                                              .digitsOnly,
+                                                        ],
                                                         onChanged: (value) {
                                                           try {
                                                             final ctrl =
@@ -2832,7 +2891,7 @@ class _SalesReturnPageState extends State<SalesReturnPage> with RouteAware {
                                                                     as TextEditingController;
                                                             final maxQty =
                                                                 int.tryParse(
-                                                                  product['quantity']
+                                                                  product['remainingQuantity']
                                                                           ?.toString() ??
                                                                       '',
                                                                 ) ??
@@ -3318,25 +3377,6 @@ class _SalesReturnPageState extends State<SalesReturnPage> with RouteAware {
                                     'Paid Amount',
                                     'Rs. ${double.tryParse(_currentReturn!.paid ?? '0')?.toStringAsFixed(2) ?? '0.00'}',
                                     Icons.payment,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildInfoItem(
-                                    'Tax',
-                                    'Rs. ${double.tryParse(_currentReturn!.tax ?? '0')?.toStringAsFixed(2) ?? '0.00'}',
-                                    Icons.account_balance_wallet,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: _buildInfoItem(
-                                    'Discount',
-                                    '${_currentReturn!.discPer ?? '0'}% (Rs. ${double.tryParse(_currentReturn!.discAmount ?? '0')?.toStringAsFixed(2) ?? '0.00'})',
-                                    Icons.discount,
                                   ),
                                 ),
                               ],

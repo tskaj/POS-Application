@@ -39,7 +39,7 @@ class _PosNavbarState extends State<PosNavbar> {
   }
 
   void _updateTime() {
-    final now = DateFormat('HH:mm:ss').format(DateTime.now());
+    final now = DateFormat('hh:mm:ss a').format(DateTime.now());
     if (mounted && now != _currentTime) {
       setState(() {
         _currentTime = now;

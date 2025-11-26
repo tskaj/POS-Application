@@ -2,6 +2,7 @@
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/environment_config.dart';
+import '../utils/utils.dart';
 
 // Export finance services
 export 'bank_services.dart';
@@ -30,6 +31,27 @@ class ApiService {
   static const String loginEndpoint = '/login';
   static const String profileEndpoint = '/profile';
   static const String profilesEndpoint = '/profiles';
+
+  // Check for duplicate phone numbers across vendors, customers, and employees
+  static Future<Map<String, dynamic>> checkDuplicatePhone(
+    String phoneNumber, {
+    int? excludeEmployeeId,
+    int? excludeCustomerId,
+    int? excludeVendorId,
+  }) async {
+    // Import the utils function here to avoid circular imports
+    final result = await checkDuplicatePhoneNumber(
+      phoneNumber,
+      excludeEmployeeId: excludeEmployeeId,
+      excludeCustomerId: excludeCustomerId,
+      excludeVendorId: excludeVendorId,
+    );
+    // If duplicate found, throw exception to match existing API pattern
+    if (result['isDuplicate'] == true) {
+      throw Exception('Phone number already exists');
+    }
+    return {'status': 'success'};
+  }
 
   // Get user profile
   static Future<Map<String, dynamic>> getProfile(int userId) async {

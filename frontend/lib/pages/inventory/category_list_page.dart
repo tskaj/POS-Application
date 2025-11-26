@@ -1609,9 +1609,8 @@ class _CategoryListPageState extends State<CategoryListPage> {
                             )
                           : ListView.builder(
                               itemCount: categories.length,
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
                               itemExtent: 32, // compact row height
+                              physics: const AlwaysScrollableScrollPhysics(),
                               itemBuilder: (context, index) {
                                 final category = categories[index];
                                 return Container(
