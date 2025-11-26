@@ -911,323 +911,669 @@ class _UsersPageState extends State<UsersPage> {
       color: Colors.black.withOpacity(0.5),
       child: Center(
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.5,
-          height: MediaQuery.of(context).size.height * 0.6,
-          constraints: const BoxConstraints(maxWidth: 500, maxHeight: 500),
+          width: MediaQuery.of(context).size.width * 0.6,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Dialog Header
+              // Header
               Container(
                 padding: const EdgeInsets.all(24),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0D1845),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF0D1845), Color(0xFF1a2980)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
                   ),
                 ),
                 child: Row(
                   children: [
-                    const Text(
-                      'Create New User',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        Icons.person_add,
                         color: Colors.white,
+                        size: 28,
                       ),
                     ),
-                    const Spacer(),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Create New User',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Fill in the user details below',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                     IconButton(
                       onPressed: _closeDialogs,
-                      icon: const Icon(Icons.close, color: Colors.white),
+                      icon: Icon(Icons.close, color: Colors.white, size: 24),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              // Dialog Content
+              // Content
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // First Name
-                      const Text(
-                        'First Name *',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
+                      // Personal Information Section
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Color(0xFFDEE2E6)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _firstNameController,
-                        decoration: InputDecoration(
-                          labelText: 'First Name',
-                          hintText: 'Enter first name',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.person),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Last Name
-                      const Text(
-                        'Last Name *',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _lastNameController,
-                        decoration: InputDecoration(
-                          labelText: 'Last Name',
-                          hintText: 'Enter last name',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.person),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Email
-                      const Text(
-                        'Email *',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          hintText: 'Enter email address',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.email),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Cell No1
-                      const Text(
-                        'Cell No1 *',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _cellNo1Controller,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          labelText: 'Cell No1',
-                          hintText: 'Enter primary cell number',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.phone),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Password
-                      const Text(
-                        'Password *',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _passwordController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Password',
-                          hintText: 'Enter password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.lock),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Password Confirmation
-                      const Text(
-                        'Confirm Password *',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _passwordConfirmationController,
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Confirm Password',
-                          hintText: 'Re-enter password',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.lock_outline),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Role ID
-                      const Text(
-                        'Role *',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: _selectedRole,
-                        decoration: InputDecoration(
-                          labelText: 'Role',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.badge),
-                        ),
-                        items: [
-                          const DropdownMenuItem<String>(
-                            value: '2',
-                            child: Text('Admin'),
-                          ),
-                          const DropdownMenuItem<String>(
-                            value: '3',
-                            child: Text('Manager'),
-                          ),
-                          const DropdownMenuItem<String>(
-                            value: '4',
-                            child: Text('Cashier'),
-                          ),
-                          const DropdownMenuItem<String>(
-                            value: '5',
-                            child: Text('Inventory Officer'),
-                          ),
-                          const DropdownMenuItem<String>(
-                            value: '6',
-                            child: Text('Salesman'),
-                          ),
-                        ],
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _selectedRole = newValue!;
-                          });
-                        },
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Cell No2
-                      const Text(
-                        'Cell No2',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _cellNo2Controller,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          labelText: 'Cell No2',
-                          hintText: 'Enter secondary cell number (optional)',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.phone),
-                        ),
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      // Action Buttons
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: _isSubmitting
-                                  ? null
-                                  : _submitCreateUser,
-                              icon: _isSubmitting
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                      ),
-                                    )
-                                  : const Icon(Icons.save),
-                              label: Text(
-                                _isSubmitting ? 'Creating...' : 'Create User',
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0D1845),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF2196F3).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Color(0xFF2196F3),
+                                    size: 20,
+                                  ),
                                 ),
-                                foregroundColor: Colors.white,
-                              ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Personal Information',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0D1845),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          OutlinedButton(
-                            onPressed: _closeDialogs,
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 16,
-                              ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'First Name *',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0D1845),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: _firstNameController,
+                                        decoration: InputDecoration(
+                                          labelText: 'First Name',
+                                          hintText: 'Enter first name',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          prefixIcon: const Icon(Icons.person),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Color(0xFF0D1845),
+                                              width: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Last Name *',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0D1845),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: _lastNameController,
+                                        decoration: InputDecoration(
+                                          labelText: 'Last Name',
+                                          hintText: 'Enter last name',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          prefixIcon: const Icon(Icons.person),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Color(0xFF0D1845),
+                                              width: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                            child: const Text('Cancel'),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Email *',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0D1845),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                TextField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: InputDecoration(
+                                    labelText: 'Email',
+                                    hintText: 'Enter email address',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    prefixIcon: const Icon(Icons.email),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: Color(0xFF0D1845),
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Contact Information Section
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Color(0xFFDEE2E6)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF28A745).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.phone,
+                                    color: Color(0xFF28A745),
+                                    size: 20,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Contact Information',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0D1845),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Primary Phone *',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0D1845),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: _cellNo1Controller,
+                                        keyboardType: TextInputType.phone,
+                                        maxLength: 10,
+                                        decoration: InputDecoration(
+                                          labelText: 'Primary Phone',
+                                          hintText: '3001234567',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          prefixIcon: const Icon(
+                                            Icons.phone_android,
+                                          ),
+                                          prefixText: '+92 ',
+                                          prefixStyle: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Color(0xFF0D1845),
+                                              width: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Secondary Phone',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0D1845),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: _cellNo2Controller,
+                                        keyboardType: TextInputType.phone,
+                                        maxLength: 10,
+                                        decoration: InputDecoration(
+                                          labelText: 'Secondary Phone',
+                                          hintText: '3007654321',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          prefixIcon: const Icon(
+                                            Icons.phone_android,
+                                          ),
+                                          prefixText: '+92 ',
+                                          prefixStyle: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Color(0xFF0D1845),
+                                              width: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Account Information Section
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Color(0xFFDEE2E6)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFFFFA726).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.account_circle,
+                                    color: Color(0xFFFFA726),
+                                    size: 20,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Account Information',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0D1845),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Password *',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0D1845),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: _passwordController,
+                                        obscureText: true,
+                                        decoration: InputDecoration(
+                                          labelText: 'Password',
+                                          hintText: 'Enter password',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          prefixIcon: const Icon(Icons.lock),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Color(0xFF0D1845),
+                                              width: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Confirm Password *',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0D1845),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller:
+                                            _passwordConfirmationController,
+                                        obscureText: true,
+                                        decoration: InputDecoration(
+                                          labelText: 'Confirm Password',
+                                          hintText: 'Re-enter password',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          prefixIcon: const Icon(
+                                            Icons.lock_outline,
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Color(0xFF0D1845),
+                                              width: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Role *',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0D1845),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                DropdownButtonFormField<String>(
+                                  value: _selectedRole,
+                                  decoration: InputDecoration(
+                                    labelText: 'Role',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    prefixIcon: const Icon(Icons.badge),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: Color(0xFF0D1845),
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                  items: [
+                                    const DropdownMenuItem<String>(
+                                      value: '2',
+                                      child: Text('Admin'),
+                                    ),
+                                    const DropdownMenuItem<String>(
+                                      value: '3',
+                                      child: Text('Manager'),
+                                    ),
+                                    const DropdownMenuItem<String>(
+                                      value: '4',
+                                      child: Text('Cashier'),
+                                    ),
+                                    const DropdownMenuItem<String>(
+                                      value: '5',
+                                      child: Text('Inventory Officer'),
+                                    ),
+                                    const DropdownMenuItem<String>(
+                                      value: '6',
+                                      child: Text('Salesman'),
+                                    ),
+                                  ],
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _selectedRole = newValue!;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
+                ),
+              ),
+
+              // Footer
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _isSubmitting ? null : _closeDialogs,
+                      icon: Icon(Icons.close, size: 18),
+                      label: const Text('Cancel'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Color(0xFF6C757D),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton.icon(
+                      onPressed: _isSubmitting ? null : _submitCreateUser,
+                      icon: _isSubmitting
+                          ? SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : Icon(Icons.save, size: 18),
+                      label: Text(
+                        _isSubmitting ? 'Creating...' : 'Create User',
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF0D1845),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -1242,271 +1588,576 @@ class _UsersPageState extends State<UsersPage> {
       color: Colors.black.withOpacity(0.5),
       child: Center(
         child: Container(
-          width: MediaQuery.of(context).size.width * 0.5,
-          height: MediaQuery.of(context).size.height * 0.6,
-          constraints: const BoxConstraints(maxWidth: 500, maxHeight: 500),
+          width: MediaQuery.of(context).size.width * 0.6,
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Dialog Header
+              // Header
               Container(
                 padding: const EdgeInsets.all(24),
-                decoration: const BoxDecoration(
-                  color: Color(0xFF0D1845),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(12),
-                    topRight: Radius.circular(12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Color(0xFF0D1845), Color(0xFF1a2980)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
                   ),
                 ),
                 child: Row(
                   children: [
-                    const Text(
-                      'Edit User',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    Container(
+                      padding: EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(Icons.edit, color: Colors.white, size: 28),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Edit User',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                          SizedBox(height: 4),
+                          Text(
+                            'Update user details below',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.white.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const Spacer(),
                     IconButton(
                       onPressed: _closeDialogs,
-                      icon: const Icon(Icons.close, color: Colors.white),
+                      icon: Icon(Icons.close, color: Colors.white, size: 24),
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.white.withOpacity(0.2),
+                      ),
                     ),
                   ],
                 ),
               ),
 
-              // Dialog Content
+              // Content
               Expanded(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // First Name
-                      const Text(
-                        'First Name *',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
+                      // Personal Information Section
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Color(0xFFDEE2E6)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _firstNameController,
-                        decoration: InputDecoration(
-                          labelText: 'First Name',
-                          hintText: 'Enter first name',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.person),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Last Name
-                      const Text(
-                        'Last Name *',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _lastNameController,
-                        decoration: InputDecoration(
-                          labelText: 'Last Name',
-                          hintText: 'Enter last name',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.person),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Email
-                      const Text(
-                        'Email *',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        decoration: InputDecoration(
-                          labelText: 'Email',
-                          hintText: 'Enter email address',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.email),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Cell No1
-                      const Text(
-                        'Cell No1',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _cellNo1Controller,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          labelText: 'Cell No1',
-                          hintText: 'Enter primary cell number',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.phone),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Cell No2
-                      const Text(
-                        'Cell No2',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      TextField(
-                        controller: _cellNo2Controller,
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          labelText: 'Cell No2',
-                          hintText: 'Enter secondary cell number (optional)',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.phone),
-                        ),
-                      ),
-
-                      const SizedBox(height: 24),
-
-                      // Role ID
-                      const Text(
-                        'Role',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF0D1845),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: _selectedRole,
-                        decoration: InputDecoration(
-                          labelText: 'Role',
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          prefixIcon: const Icon(Icons.badge),
-                        ),
-                        items: [
-                          const DropdownMenuItem<String>(
-                            value: '2',
-                            child: Text('Admin'),
-                          ),
-                          const DropdownMenuItem<String>(
-                            value: '3',
-                            child: Text('Manager'),
-                          ),
-                          const DropdownMenuItem<String>(
-                            value: '4',
-                            child: Text('Cashier'),
-                          ),
-                          const DropdownMenuItem<String>(
-                            value: '5',
-                            child: Text('Inventory Officer'),
-                          ),
-                          const DropdownMenuItem<String>(
-                            value: '6',
-                            child: Text('Salesman'),
-                          ),
-                        ],
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            _selectedRole = newValue!;
-                          });
-                        },
-                      ),
-
-                      const SizedBox(height: 32),
-
-                      // Action Buttons
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton.icon(
-                              onPressed: _isSubmitting ? null : _submitEditUser,
-                              icon: _isSubmitting
-                                  ? const SizedBox(
-                                      width: 20,
-                                      height: 20,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                      ),
-                                    )
-                                  : const Icon(Icons.save),
-                              label: Text(
-                                _isSubmitting ? 'Updating...' : 'Update User',
-                              ),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF0D1845),
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF2196F3).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.person,
+                                    color: Color(0xFF2196F3),
+                                    size: 20,
+                                  ),
                                 ),
-                                foregroundColor: Colors.white,
-                              ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Personal Information',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0D1845),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          OutlinedButton(
-                            onPressed: _closeDialogs,
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 16,
-                              ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'First Name *',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0D1845),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: _firstNameController,
+                                        decoration: InputDecoration(
+                                          labelText: 'First Name',
+                                          hintText: 'Enter first name',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          prefixIcon: const Icon(Icons.person),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Color(0xFF0D1845),
+                                              width: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Last Name *',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0D1845),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: _lastNameController,
+                                        decoration: InputDecoration(
+                                          labelText: 'Last Name',
+                                          hintText: 'Enter last name',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          prefixIcon: const Icon(Icons.person),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Color(0xFF0D1845),
+                                              width: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
                             ),
-                            child: const Text('Cancel'),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Email *',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0D1845),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                TextField(
+                                  controller: _emailController,
+                                  keyboardType: TextInputType.emailAddress,
+                                  decoration: InputDecoration(
+                                    labelText: 'Email',
+                                    hintText: 'Enter email address',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    prefixIcon: const Icon(Icons.email),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: Color(0xFF0D1845),
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Contact Information Section
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Color(0xFFDEE2E6)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF28A745).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.phone,
+                                    color: Color(0xFF28A745),
+                                    size: 20,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Contact Information',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0D1845),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Primary Phone',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0D1845),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: _cellNo1Controller,
+                                        keyboardType: TextInputType.phone,
+                                        maxLength: 10,
+                                        decoration: InputDecoration(
+                                          labelText: 'Primary Phone',
+                                          hintText: '3001234567',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          prefixIcon: const Icon(
+                                            Icons.phone_android,
+                                          ),
+                                          prefixText: '+92 ',
+                                          prefixStyle: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Color(0xFF0D1845),
+                                              width: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Secondary Phone',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF0D1845),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: _cellNo2Controller,
+                                        keyboardType: TextInputType.phone,
+                                        maxLength: 10,
+                                        decoration: InputDecoration(
+                                          labelText: 'Secondary Phone',
+                                          hintText: '3007654321',
+                                          border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
+                                          prefixIcon: const Icon(
+                                            Icons.phone_android,
+                                          ),
+                                          prefixText: '+92 ',
+                                          prefixStyle: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                          focusedBorder: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            borderSide: BorderSide(
+                                              color: Color(0xFF0D1845),
+                                              width: 2,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Role Information Section
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Color(0xFFDEE2E6)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: Offset(0, 4),
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(8),
+                                  decoration: BoxDecoration(
+                                    color: Color(0xFF17A2B8).withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Icon(
+                                    Icons.badge_outlined,
+                                    color: Color(0xFF17A2B8),
+                                    size: 20,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Role',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0D1845),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 20),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Role',
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: Color(0xFF0D1845),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                DropdownButtonFormField<String>(
+                                  value: _selectedRole,
+                                  decoration: InputDecoration(
+                                    labelText: 'Role',
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    prefixIcon: const Icon(Icons.badge),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: Color(0xFF0D1845),
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                  items: [
+                                    const DropdownMenuItem<String>(
+                                      value: '2',
+                                      child: Text('Admin'),
+                                    ),
+                                    const DropdownMenuItem<String>(
+                                      value: '3',
+                                      child: Text('Manager'),
+                                    ),
+                                    const DropdownMenuItem<String>(
+                                      value: '4',
+                                      child: Text('Cashier'),
+                                    ),
+                                    const DropdownMenuItem<String>(
+                                      value: '5',
+                                      child: Text('Inventory Officer'),
+                                    ),
+                                    const DropdownMenuItem<String>(
+                                      value: '6',
+                                      child: Text('Salesman'),
+                                    ),
+                                  ],
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      _selectedRole = newValue!;
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
+                ),
+              ),
+
+              // Footer
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(20),
+                    bottomRight: Radius.circular(20),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      onPressed: _isSubmitting ? null : _closeDialogs,
+                      icon: Icon(Icons.close, size: 18),
+                      label: const Text('Cancel'),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Color(0xFF6C757D),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton.icon(
+                      onPressed: _isSubmitting ? null : _submitEditUser,
+                      icon: _isSubmitting
+                          ? SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
+                              ),
+                            )
+                          : Icon(Icons.save, size: 18),
+                      label: Text(
+                        _isSubmitting ? 'Updating...' : 'Update User',
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF0D1845),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
